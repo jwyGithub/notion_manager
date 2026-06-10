@@ -37,20 +37,22 @@ RUN GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH:-amd64} \
 
 # ---- Stage 3: minimal runtime ----
 FROM alpine:3.20
-RUN apk add --no-cache ca-certificates tzdata \
+RUN apk add --no-cache ca-certificates tzdata su-exec \
     && adduser -D -u 10001 app
 WORKDIR /app
 
 COPY --from=go-builder /out/notion-manager /usr/local/bin/notion-manager
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 # config.yaml, accounts/*.json and stats files are written to the working dir
 # at runtime, so persist /app via a volume.
-RUN mkdir -p /app/accounts && chown -R app:app /app
-USER app
+RUN mkdir -p /app/accounts \
+    && chown -R app:app /app \
+    && chmod +x /usr/local/bin/docker-entrypoint.sh
 VOLUME ["/app"]
 
 # Default listen port (no config.yaml -> 8081). Override via config.yaml or PORT.
 EXPOSE 8081
 ENV PORT=8081
 
-ENTRYPOINT ["notion-manager"]
+ENTRYPOINT ["docker-entrypoint.sh"]

@@ -21,8 +21,8 @@ services:
     volumes:
       # Persist config.yaml, accounts/*.json and stats across restarts.
       # The admin password + API key are generated on first start and saved here.
-      # The container runs as uid 10001 (non-root); if you see permission errors,
-      # run once: `mkdir -p data && sudo chown -R 10001:10001 data`.
+      # The entrypoint fixes the bind-mounted directory ownership before
+      # dropping to the non-root app user.
       - ./data:/app
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8081/health"]
