@@ -1,0 +1,32 @@
+services:
+  notion-manager:
+    # Pull the published multi-arch image. Override the tag via the
+    # NOTION_MANAGER_TAG env var, e.g. `NOTION_MANAGER_TAG=0.0.1 docker compose up`.
+    image: ghcr.io/sleepingbag945/notion_manager:${NOTION_MANAGER_TAG:-latest}
+    # To build locally instead of pulling, run `docker compose build` /
+    # `docker compose up --build` (the `build` block is used as the source).
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: notion-manager
+    restart: unless-stopped
+    ports:
+      # Host:Container. Change the host side via PORT, e.g. PORT=3000.
+      - "${PORT:-8081}:8081"
+    environment:
+      # Listen port inside the container (must match the container side above).
+      PORT: "8081"
+      # Optional upstream proxy for all Notion-bound traffic.
+      # NOTION_PROXY: "socks5h://user:pass@host:1080"
+    volumes:
+      # Persist config.yaml, accounts/*.json and stats across restarts.
+      # The admin password + API key are generated on first start and saved here.
+      # The container runs as uid 10001 (non-root); if you see permission errors,
+      # run once: `mkdir -p data && sudo chown -R 10001:10001 data`.
+      - ./data:/app
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8081/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

@@ -1,0 +1,48 @@
+# Build artifacts
+*.exe
+*.exe~
+/notion-manager
+/notion-proxy
+/notion-manager-register
+/notion2api
+/register
+out/
+
+# Frontend artifacts (rebuilt inside the image)
+web/node_modules/
+web/dist/
+internal/web/dist/
+
+# Secrets & runtime state (never bake these into the image)
+config.yaml
+token.txt
+accounts/*.json
+accounts/.register_inputs/
+accounts/.register_history.json
+accounts/.token_stats.json
+
+# Logs & debug
+*.log
+logs/
+server.stderr.log
+debug_response.jsonl
+api_probes/
+claude_code_system_dump.*
+claude_code_tools_dump.*
+
+# VCS & tooling
+.git/
+.github/
+.idea/
+.vscode/
+.playwright-cli/
+.playwright-mcp/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs / media not needed for the build
+*.md
+img/
+docs/
